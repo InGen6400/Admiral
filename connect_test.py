@@ -6,23 +6,20 @@ PORT = 10000
 name = 'tester'
 
 BUFFER_SIZE = 4096
-LEFT = 'left'
-RIGHT = 'right'
-UP = 'up'
-DOWN = 'down'
+STAT = 'stat\n'.encode()
+LEFT = 'left\n'.encode()
+RIGHT = 'right\n'.encode()
+UP = 'up\n'.encode()
+DOWN = 'down\n'.encode()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
-data = 'login '+name
+data = 'login '+name + '\n'
 s.sendall(data.encode())
 
-s.sendall('stat'.encode())
-s.sendall(UP.encode())
-
-sleep(3)
-
-s.sendall('stat'.encode())
-s.sendall(UP.encode())
-
-sleep(0.5)
+while True:
+    s.sendall(STAT)
+    s.sendall(UP)
+    s.sendall(UP)
+    sleep(0.5)
 
