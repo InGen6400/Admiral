@@ -137,6 +137,11 @@ class SeaGameJava(gym.core.Env):
             self.tank_map[x][y] = point
             line_num = line_num + 1
 
+        # 自分を中心にする
+        self.ship_map = np.roll(self.ship_map, 128-self.my_x, axis=1)
+        self.ship_map = np.roll(self.ship_map, 128-self.my_y, axis=0)
+        self.tank_map = np.roll(self.tank_map, 128-self.my_x, axis=1)
+        self.tank_map = np.roll(self.tank_map, 128-self.my_y, axis=0)
         return sum_enemy_point
 
     def render(self, mode='human', close=False):

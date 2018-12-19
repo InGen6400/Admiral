@@ -1,6 +1,8 @@
 import socket
 from time import sleep
+import numpy as np
 
+'''
 HOST = 'localhost'
 PORT = 10000
 name = 'tester'
@@ -23,3 +25,8 @@ while True:
     s.sendall(UP)
     sleep(0.5)
 
+'''
+array = np.arange(256*256).reshape([256, 256])
+print(array)
+ay = np.roll(array, -2, axis=0)
+print(ay)
