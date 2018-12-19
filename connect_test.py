@@ -2,7 +2,6 @@ import socket
 from time import sleep
 import numpy as np
 
-'''
 HOST = 'localhost'
 PORT = 10000
 name = 'tester'
@@ -13,6 +12,7 @@ LEFT = 'left\n'.encode()
 RIGHT = 'right\n'.encode()
 UP = 'up\n'.encode()
 DOWN = 'down\n'.encode()
+RESET = 'reset\n'.encode()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
@@ -21,12 +21,9 @@ s.sendall(data.encode())
 
 while True:
     s.sendall(STAT)
+    recv = s.recv(BUFFER_SIZE)
+    if 'finished' in recv.decode():
+        s.sendall(RESET)
     s.sendall(UP)
     s.sendall(UP)
     sleep(0.5)
-
-'''
-array = np.arange(256*256).reshape([256, 256])
-print(array)
-ay = np.roll(array, -2, axis=0)
-print(ay)
