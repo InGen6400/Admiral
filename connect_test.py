@@ -26,4 +26,3 @@ while True:
         s.sendall(RESET)
     s.sendall(UP)
     s.sendall(UP)
-    sleep(0.5)
