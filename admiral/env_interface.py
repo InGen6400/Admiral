@@ -18,6 +18,7 @@ DOWN = 'down\n'.encode()
 RIGHT = 'right\n'.encode()
 LEFT = 'left\n'.encode()
 STAT = 'stat\n'.encode()
+RESET = 'reset\n'.encode()
 
 Commands = [NONE, UP, DOWN, RIGHT, LEFT, STAT]
 
@@ -77,6 +78,9 @@ class SeaGameJava(gym.core.Env):
         return observation
 
     def reset(self):
+
+        self.sock.sendall(RESET)
+
         self.my_x = 0
         self.my_y = 0
         self.my_point = 0
