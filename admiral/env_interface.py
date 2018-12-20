@@ -5,7 +5,7 @@ import gym.spaces
 import numpy as np
 import socket
 
-from admiral.const import LOGIN, LEFT, RIGHT, UP, DOWN, Commands, STAT, RESET
+from admiral.const import LOGIN, Commands, STAT, RESET
 from numpy.core.multiarray import ndarray
 from admiral.ship_agent import ShipAgent
 
@@ -105,6 +105,7 @@ class SeaGameJava(gym.core.Env):
         self.my_point = 0
         self.finished = False
 
+        self.sock.sendall(STAT.encode())
         self.reload()
 
         return self.observe()

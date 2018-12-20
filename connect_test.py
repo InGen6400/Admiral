@@ -1,7 +1,8 @@
 import socket
+from pprint import pprint
 from time import sleep
 import numpy as np
-
+'''
 HOST = 'localhost'
 PORT = 10000
 name = 'tester'
@@ -30,3 +31,19 @@ while True:
     s.sendall(LEFT.format(name).encode())
     s.sendall(UP.format('robot').encode())
     s.sendall(RIGHT.format('robot').encode())
+'''
+
+
+def tank2_weighted_tank(elem):
+    return (4 - abs(elem[0]-4)) + (4 - abs(elem[1]-4))
+
+
+tank_convert = np.vectorize(tank2_weighted_tank)
+DIST = [[0 for i in range(8)] for j in range(8)]
+for y in range(0, 8):
+    for x in range(0, 8):
+        DIST[y][x] = tank2_weighted_tank([y, x])
+pprint(DIST)
+
+
+

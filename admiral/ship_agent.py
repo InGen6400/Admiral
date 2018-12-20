@@ -3,6 +3,18 @@ import numpy as np
 from admiral.const import LEFT, UP, DOWN, NONE, RIGHT
 
 
+def tank2_weighted_tank(elem):
+    return (128 - abs(elem[0]-128)) + (128 - abs(elem[1]-128))
+
+
+tank_convert = np.vectorize(tank2_weighted_tank)
+DIST = [[0 for i in range(256)] for j in range(256)]
+for j in range(0, 256):
+    for i in range(0, 256):
+        DIST[j][i] = tank2_weighted_tank([j, i])
+DIST = np.array(DIST)
+
+
 class ShipAgent:
     def __init__(self):
         self.x = 0
@@ -13,16 +25,15 @@ class ShipAgent:
         # 自分中心に回転
         #ship_map = np.roll(ship_map, 128-self.x, axis=1)
         #ship_map = np.roll(ship_map, 128-self.y, axis=0)
-        tank_map = np.roll(tank_map, 128-self.x, axis=1)
-        tank_map = np.roll(tank_map, 128-self.y, axis=0)
-        self.x = 128
-        self.y = 128
+        #tank_map = np.roll(tank_map, 128-self.x, axis=1)
+        #tank_map = np.roll(tank_map, 128-self.y, axis=0)
 
         best_x = -1
         best_y = -1
         best_tank = 1000000
         self.move[0] = NONE
         self.move[1] = NONE
+        '''
         for y in range(0, 256):
             for x in range(0, 256):
                 if tank_map[y][x] != 0:
@@ -32,7 +43,16 @@ class ShipAgent:
                         best_tank = tank
                         best_x = x
                         best_y = y
+        '''
 
+        y_index, x_index = np.where(tank_map != 0)
+        for y, x in zip(y_index, x_index):
+            tank = DIST[y-self.y][x-self.x] * 12 / tank_map[y][x]
+            if tank < best_tank:
+                best_tank = tank
+                best_x = x
+                best_y = y
+        
         # タンクがないなら終了
         if best_x == -1:
             return
