@@ -1,7 +1,8 @@
+from time import sleep
 from typing import List, Dict, Any
 
 import gym
-import gym.spaces
+from gym import spaces, logger
 import numpy as np
 import socket
 
@@ -35,10 +36,13 @@ class SeaGameJava(gym.core.Env):
 
     def __init__(self, name):
         # 4方向+停止が2回分のアクション
-        self.action_space = gym.spaces.Discrete(5 * 5)
+        self.action_space = gym.spaces.Discrete(len(ACTION_MEANING))
 
         # 自分のpoint, 各座標の相手のポイント, 各座標のタンクのポイント
-        self.observation_space = gym.spaces.Box(low=0, high=1200, shape=[256, 256, 2], dtype=np.uint16)
+        self.observation_space = spaces.Dict(dict(
+            ship_map=gym.spaces.Box(low=0, high=1200, shape=(256, 256), dtype=np.uint16),
+            tank_map=gym.spaces.Box(low=0, high=4, shape=(256, 256), dtype=np.uint8),
+        ))
 
         # ソケット確保
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -103,7 +107,10 @@ class SeaGameJava(gym.core.Env):
         self.my_y = 128
         # 自分は無視
         ship_map[128][128] = 0
-        observation = np.dstack([ship_map, tank_map*MAX_POINT/MAX_TANK])
+        observation = dict(
+            ship_map=ship_map,
+            tank_map=tank_map
+        )
         return observation
 
     def reset(self):
@@ -191,6 +198,7 @@ class SeaGameJava(gym.core.Env):
         return sum_enemy_capture
 
     def render(self, mode='human', close=False):
+        sleep(0.04)
         return 0
 
 
