@@ -1,7 +1,11 @@
+import numpy
 import socket
 from pprint import pprint
 from time import sleep
 import numpy as np
+
+from admiral.env_interface import SeaGameJava
+
 '''
 HOST = 'localhost'
 PORT = 10000
@@ -32,18 +36,18 @@ while True:
     s.sendall(UP.format('robot').encode())
     s.sendall(RIGHT.format('robot').encode())
 '''
+a1 = np.zeros([256,256])
+a2 = np.zeros([256,256])
+d3array = np.array([a1, a2])
+print(d3array.shape)
 
+'''
 
-def tank2_weighted_tank(elem):
-    return (4 - abs(elem[0]-4)) + (4 - abs(elem[1]-4))
-
-
-tank_convert = np.vectorize(tank2_weighted_tank)
-DIST = [[0 for i in range(8)] for j in range(8)]
-for y in range(0, 8):
-    for x in range(0, 8):
-        DIST[y][x] = tank2_weighted_tank([y, x])
-pprint(DIST)
-
+env = SeaGameJava('PythonRobo')
+while True:
+    obs, rew, done = env.step(numpy.array([1, 3]))
+    if done:
+        env.reset()
+'''
 
 

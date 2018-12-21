@@ -19,6 +19,8 @@ class ShipAgent:
     def __init__(self):
         self.x = 0
         self.y = 0
+        self.point = 0
+        self.capture = 0
         self.move = [NONE]*2
 
     def decide_move(self, ship_map, tank_map: np.ndarray):
