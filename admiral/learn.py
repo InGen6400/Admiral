@@ -34,7 +34,7 @@ model.add(Dense(nb_actions))
 model.add(Activation('linear'))
 print(model.summary())
 
-memory = SequentialMemory(limit=1000000, window_length=1)
+memory = SequentialMemory(limit=6000, window_length=1)
 
 policy = EpsGreedyQPolicy(eps=0.1)
 
@@ -42,4 +42,5 @@ dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmu
                target_model_update=1e-2, policy=policy, train_interval=100)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
-history = dqn.fit(env, nb_steps=11200, visualize=False, verbose=2, nb_max_episode_steps=600)
+history = dqn.fit(env, nb_steps=6000, action_repetition=3, visualize=False, verbose=1, nb_max_episode_steps=600)
+dqn.test(env, nb_episodes=10, visualize=False)
