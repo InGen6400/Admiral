@@ -20,7 +20,7 @@ NAME_NO_AI = '*'
 MAX_POINT = 1200
 MAX_TANK = 4
 
-RANK_REWARD = [100, 40, 20, -20, -40, -100]
+RANK_REWARD = [100, 50, 20, -20, -50, -100]
 
 
 def agent_name(num):
