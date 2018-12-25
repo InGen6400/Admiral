@@ -6,7 +6,7 @@ from gym import spaces, logger
 import numpy as np
 import socket
 
-from admiral.const import LOGIN, STAT, RESET, NONE, UP, RIGHT, DOWN, LEFT
+from admiral.const import LOGIN, STAT, RESET, UP, RIGHT, DOWN, LEFT
 from numpy.core.multiarray import ndarray
 from admiral.ship_agent import ShipAgent
 
@@ -81,19 +81,18 @@ class SeaGameJava(gym.core.Env):
 
         self.sock.sendall(STAT.encode())
 
-        sum_enemy_capture = self.reload()
+        sum_tank = self.reload()
 
         for agent in self.agents.values():
             agent.decide_move(self.ship_map, self.tank_map)
 
-        # 終了していたら
-        if self.finished:
-            # ランキングに応じた報酬
-            reward = RANK_REWARD[self.result_name.index(self.name)]
+        # 全体から見た獲得ポイントの割合を報酬に
+        if NUM_NO_AI > 0:
+            reward = self.capture/sum_tank
         else:
-            # 試合中なら獲得ポイントを報酬に
-            # 敵の獲得ポイントは平均値をマイナス報酬とする(重み軽め)
-            reward = self.capture - sum_enemy_capture / NUM_NO_AI * 0.6
+            reward = self.capture
+        # 早く回収することで損が減るように
+        reward = reward - 0.01
 
         return self.observe(), reward, self.finished, {}
 
@@ -107,9 +106,10 @@ class SeaGameJava(gym.core.Env):
         self.my_y = 128
         # 自分は無視
         ship_map[128][128] = 0
+        # 画像として扱うために，カラー用のチャンネルを用意する
         observation = dict(
-            ship_map=ship_map,
-            tank_map=tank_map
+            ship_map=ship_map[:, :, np.newaxis],
+            tank_map=tank_map[:, :, np.newaxis]
         )
         return observation
 
@@ -120,6 +120,7 @@ class SeaGameJava(gym.core.Env):
         self.my_x = 0
         self.my_y = 0
         self.point = 0
+        self.capture = 0
         self.finished = False
 
         self.sock.sendall(STAT.encode())
@@ -133,6 +134,7 @@ class SeaGameJava(gym.core.Env):
         recv: bytes = self.sock.recv(BUFFER_SIZE)
         lines = recv.decode().split('\n')
         line_num = 0
+        self.capture = 0
 
         # 読み飛ばし
         while "ship_info" not in lines[line_num]:
@@ -153,7 +155,7 @@ class SeaGameJava(gym.core.Env):
 
         line_num = line_num + 1
         self.ship_map.fill(0)
-        sum_enemy_capture = 0
+        sum_tank = 0
         # 敵の船情報の取得
         while "." not in lines[line_num]:
             args: List[str] = lines[line_num].split(' ')
@@ -163,6 +165,7 @@ class SeaGameJava(gym.core.Env):
             point = int(args[3])
 
             self.ship_map[y][x] = point
+            sum_tank = sum_tank + point
             # 自分の情報を保存
             if name == self.name:
                 self.my_x = x
@@ -175,7 +178,6 @@ class SeaGameJava(gym.core.Env):
                 self.agents[name].y = y
                 self.agents[name].capture = point - self.agents[name].point
                 self.agents[name].point = point
-                sum_enemy_capture = sum_enemy_capture + self.agents[name].capture
 
             line_num = line_num + 1
 
@@ -192,40 +194,27 @@ class SeaGameJava(gym.core.Env):
             y = int(args[1])
             point = int(args[2])
 
-            self.tank_map[y][x] = point
+            self.tank_map[y-5:y+5, x-5:x+5] = point
             line_num = line_num + 1
 
-        return sum_enemy_capture
+        return sum_tank
 
     def render(self, mode='human', close=False):
-        sleep(0.04)
-        return 0
+        sleep(0.025)
+        return 1
 
 
 ACTION_MEANING = {
-    0: [NONE, NONE],
-    1: [UP, NONE],
-    2: [RIGHT, NONE],
-    3: [DOWN, NONE],
-    4: [LEFT, NONE],
-    5: [NONE, UP],
-    6: [UP, UP],
-    7: [RIGHT, UP],
-    8: [DOWN, UP],
-    9: [LEFT, UP],
-    10: [NONE, RIGHT],
-    11: [UP, RIGHT],
-    12: [RIGHT, RIGHT],
-    13: [DOWN, RIGHT],
-    14: [LEFT, RIGHT],
-    15: [NONE, DOWN],
-    16: [UP, DOWN],
-    17: [RIGHT, DOWN],
-    18: [DOWN, DOWN],
-    19: [LEFT, DOWN],
-    20: [NONE, LEFT],
-    21: [UP, LEFT],
-    22: [RIGHT, LEFT],
-    23: [DOWN, LEFT],
-    24: [LEFT, LEFT],
+    0: [UP, UP],
+    1: [RIGHT, UP],
+    2: [LEFT, UP],
+    3: [UP, RIGHT],
+    4: [RIGHT, RIGHT],
+    5: [DOWN, RIGHT],
+    6: [RIGHT, DOWN],
+    7: [DOWN, DOWN],
+    8: [LEFT, DOWN],
+    9: [UP, LEFT],
+    10: [DOWN, LEFT],
+    11: [LEFT, LEFT],
 }

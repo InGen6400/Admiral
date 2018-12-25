@@ -1,3 +1,5 @@
+from collections import deque
+
 import numpy
 import socket
 from pprint import pprint
@@ -36,10 +38,11 @@ while True:
     s.sendall(UP.format('robot').encode())
     s.sendall(RIGHT.format('robot').encode())
 '''
-a1 = np.zeros([256,256])
-a2 = np.zeros([256,256])
-d3array = np.array([a1, a2])
-print(d3array.shape)
+memory = deque(maxlen=4)
+memory.append('123')
+memory.append([12, 123])
+
+print([t[0] for t in memory])
 
 '''
 
