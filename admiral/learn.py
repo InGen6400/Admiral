@@ -73,7 +73,7 @@ memory = SequentialMemory(limit=600*10, window_length=1)
 
 policy = EpsGreedyQPolicy(eps=0.01)
 
-dqn = DQNAgent(model=model_final, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1200,
+dqn = DQNAgent(model=model_final, nb_actions=nb_actions, memory=memory, nb_steps_warmup=2400,
                target_model_update=1e-2, policy=policy, train_interval=600, batch_size=512)
 if os.path.exists(WEIGHT_FILE):
     dqn.load_weights(WEIGHT_FILE)

@@ -6,7 +6,7 @@ from gym import spaces, logger
 import numpy as np
 import socket
 
-from admiral.const import LOGIN, STAT, RESET, UP, RIGHT, DOWN, LEFT
+from admiral.const import LOGIN, STAT, RESET, UP, RIGHT, DOWN, LEFT, ENESUM
 from numpy.core.multiarray import ndarray
 from admiral.ship_agent import ShipAgent
 
@@ -62,6 +62,7 @@ class SeaGameJava(gym.core.Env):
         self.my_x = 0
         self.my_y = 0
         self.point = 0
+        self.sum_tank = 0
         self.capture = 0
         self.finished = False
         self.is_logged = False
@@ -81,18 +82,18 @@ class SeaGameJava(gym.core.Env):
 
         self.sock.sendall(STAT.encode())
 
-        sum_tank = self.reload()
+        ene_tank_sum = self.reload()
 
         for agent in self.agents.values():
             agent.decide_move(self.ship_map, self.tank_map)
 
-        # 全体から見た獲得ポイントの割合を報酬に
+        # 全体から見た相対獲得ポイントの割合を報酬に
         if NUM_NO_AI > 0:
-            reward = self.capture/sum_tank
+            reward = (self.capture - ene_tank_sum/NUM_NO_AI)/self.sum_tank
         else:
             reward = self.capture
         # 早く回収することで損が減るように
-        reward = reward - 0.01
+        # reward = reward - 0.002
 
         return self.observe(), reward, self.finished, {}
 
@@ -116,6 +117,11 @@ class SeaGameJava(gym.core.Env):
     def reset(self):
 
         self.sock.sendall(RESET.encode())
+        sleep(0.01)
+        self.sock.sendall(ENESUM.encode())
+        sleep(0.01)
+        recv = self.sock.recv(BUFFER_SIZE)
+        self.sum_tank = int(recv)
 
         self.my_x = 0
         self.my_y = 0
@@ -155,7 +161,7 @@ class SeaGameJava(gym.core.Env):
 
         line_num = line_num + 1
         self.ship_map.fill(0)
-        sum_tank = 0
+        ene_tank_sum = 0
         # 敵の船情報の取得
         while "." not in lines[line_num]:
             args: List[str] = lines[line_num].split(' ')
@@ -165,7 +171,6 @@ class SeaGameJava(gym.core.Env):
             point = int(args[3])
 
             self.ship_map[y][x] = point
-            sum_tank = sum_tank + point
             # 自分の情報を保存
             if name == self.name:
                 self.my_x = x
@@ -178,6 +183,7 @@ class SeaGameJava(gym.core.Env):
                 self.agents[name].y = y
                 self.agents[name].capture = point - self.agents[name].point
                 self.agents[name].point = point
+                ene_tank_sum = ene_tank_sum + point
 
             line_num = line_num + 1
 
@@ -193,11 +199,10 @@ class SeaGameJava(gym.core.Env):
             x = int(args[0])
             y = int(args[1])
             point = int(args[2])
-
             self.tank_map[y-5:y+5, x-5:x+5] = point
             line_num = line_num + 1
 
-        return sum_tank
+        return ene_tank_sum
 
     def render(self, mode='human', close=False):
         sleep(0.025)
