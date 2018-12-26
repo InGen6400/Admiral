@@ -1,12 +1,4 @@
-from collections import deque
-
-import numpy
-import socket
-from pprint import pprint
-from time import sleep
-import numpy as np
-
-from admiral.env_interface import SeaGameJava
+import random
 
 '''
 HOST = 'localhost'
@@ -38,12 +30,13 @@ while True:
     s.sendall(UP.format('robot').encode())
     s.sendall(RIGHT.format('robot').encode())
 '''
+'''
 memory = deque(maxlen=4)
 memory.append('123')
 memory.append([12, 123])
 
 print([t[0] for t in memory])
-
+'''
 '''
 
 env = SeaGameJava('PythonRobo')
@@ -52,5 +45,7 @@ while True:
     if done:
         env.reset()
 '''
+for _ in range(20):
+    print(random.randint(0, 4))
 
 
