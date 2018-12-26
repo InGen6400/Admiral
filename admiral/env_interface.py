@@ -89,7 +89,7 @@ class SeaGameJava(gym.core.Env):
 
         # 全体から見た相対獲得ポイントの割合を報酬に
         if NUM_NO_AI > 0:
-            reward = (self.capture - ene_tank_sum/NUM_NO_AI)/self.sum_tank
+            reward = self.capture/self.sum_tank
         else:
             reward = self.capture
         # 早く回収することで損が減るように
@@ -183,7 +183,7 @@ class SeaGameJava(gym.core.Env):
                 self.agents[name].y = y
                 self.agents[name].capture = point - self.agents[name].point
                 self.agents[name].point = point
-                ene_tank_sum = ene_tank_sum + point
+                ene_tank_sum = ene_tank_sum + self.agents[name].capture
 
             line_num = line_num + 1
 
