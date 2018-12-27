@@ -34,7 +34,6 @@ nb_actions = env.action_space.n
 shape = (256, 256, 1)
 model_ship = Sequential()
 model_ship.add(Reshape(shape, input_shape=(1,) + shape))
-model_ship.add(AveragePooling2D((4, 4), (2, 2)))
 model_ship.add(Flatten())
 model_ship.add(Dense(16))
 model_ship.add(Activation('relu'))
@@ -47,7 +46,6 @@ plot_model(model_ship, to_file='model_ship.png')
 
 model_tank = Sequential()
 model_tank.add(Reshape(shape, input_shape=(1,) + shape))
-model_tank.add(AveragePooling2D((4, 4), (2, 2)))
 model_tank.add(Flatten())
 model_tank.add(Dense(16))
 model_tank.add(Activation('relu'))
@@ -74,13 +72,13 @@ memory = SequentialMemory(limit=600*10, window_length=1)
 policy = EpsGreedyQPolicy(eps=0.01)
 
 dqn = DQNAgent(model=model_final, nb_actions=nb_actions, memory=memory, nb_steps_warmup=2400,
-               target_model_update=1e-2, policy=policy, train_interval=600, batch_size=512)
+               target_model_update=1e-2, policy=policy, train_interval=1200, batch_size=1024)
 if os.path.exists(WEIGHT_FILE):
     dqn.load_weights(WEIGHT_FILE)
 dqn.processor = MultiInputProcessor(2)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
-history = dqn.fit(env, nb_steps=600000, visualize=False, verbose=2, nb_max_episode_steps=None)
+history = dqn.fit(env, nb_steps=600000, visualize=True, verbose=2, nb_max_episode_steps=None)
 
 dqn.save_weights(WEIGHT_FILE, True)
 dqn.test(env, nb_episodes=10, visualize=True)

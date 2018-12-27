@@ -1,12 +1,13 @@
 
-NONE = ''
 STAT = 'stat\n'
 LOGIN = 'login {}\n'
-LEFT = 'left {}\n'
-RIGHT = 'right {}\n'
-UP = 'up {}\n'
-DOWN = 'down {}\n'
 RESET = 'reset\n'
 ENESUM = 'ENESUM\n'
 
-Commands = [NONE, LEFT, RIGHT, UP, DOWN]
+RIGHT = 'right {}\n'
+DOWN = 'down {}\n'
+LEFT = 'left {}\n'
+UP = 'up {}\n'
+NONE = ''
+
+Commands = [RIGHT, DOWN, LEFT, UP, NONE]
